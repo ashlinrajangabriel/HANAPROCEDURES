@@ -1,0 +1,46 @@
+PROCEDURE "LoginValidate"(in IM_GID nvarchar(6),in IM_PASSWD nvarchar(96), out EX_StatusIndicator nvarchar(5),out Ex_Status nvarchar(216) )
+   LANGUAGE SQLSCRIPT
+   SQL SECURITY INVOKER
+   --DEFAULT SCHEMA <default_schema_name>
+  -- READS SQL DATA
+  AS
+BEGIN
+   /*************************************
+       Write your procedure logic 
+   *************************************/
+   declare LV_UserExistCount Integer;
+   declare LV_UserExistPass Integer;
+   declare LV_Attempt Integer;
+IF(IM_GID = '' or IM_PASSWD = null )    then EX_StatusIndicator =  'X0' ;   Ex_Status = 'Cannot be null'; else
+   select count(DISTINCT(USERID)) into LV_UserExistCount  from "Datasource.MD_USER_DETAIL" where USERID = :IM_GID ;
+   IF(TO_INTEGER(LV_UserExistCount) = 0)then
+         	
+				EX_StatusIndicator =  'X1' ;
+				Ex_Status = 'You are not registered, please register';
+
+   else 
+	    select  count(DISTINCT("Password")) into LV_UserExistPass  from "Datasource.MD_USER_DETAIL" where "Password" = :IM_PASSWD and USERID = :IM_GID;
+		         IF(TO_INTEGER(:LV_UserExistCount) = 1 and TO_INTEGER(:LV_UserExistPass) = 0) then 
+		         EX_StatusIndicator =  'X2' ;
+	             Ex_Status = 'You are not Authorized, Incorrect password';  
+	             select "NoOfAttempt" into LV_Attempt from    "Datasource.DailyLoginControl" where GID = :IM_GID ;
+	             LV_Attempt = to_Integer(LV_Attempt) + 1;
+	             update "Datasource.DailyLoginControl" set "GID" = IM_GID, "Status" = 'Failed',"LoggedInat"=current_date,"NoOfAttempt" = to_Integer(LV_Attempt), "ResetRequestDate"='00000000' where "GID" = IM_GID and "LoggedInat" = current_date;  
+	             commit;
+	             ELSEIF(to_Integer(LV_Attempt) <= 3 ) then
+	             select "NoOfAttempt" into LV_Attempt from    "Datasource.DailyLoginControl" ;
+	             EX_StatusIndicator =  'X4' ;
+	             Ex_Status = 'un Authorized ! Your account has been entered with incorrect password'+LV_Attempt+'times';
+	             LV_Attempt = LV_Attempt + 1;
+	             update "Datasource.DailyLoginControl" set "GID" = IM_GID, "Status" = 'Failed',"LoggedInat"=current_date,"NoOfAttempt" = LV_Attempt, "ResetRequestDate"='00000000' where "GID" = IM_GID and "LoggedInat" = current_date;  
+	             commit;
+	             ELSEIF (to_Integer(LV_Attempt) >= 3 ) then
+	             EX_StatusIndicator =  'X3' ;
+	             Ex_Status = 'Breach ! Your account has been locked';
+	             END IF;
+	            	
+	 
+		
+   END IF;                           
+END IF; 
+END
