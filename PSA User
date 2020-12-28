@@ -1,0 +1,79 @@
+PROCEDURE "Facilitator"."IntelligentFacilitator.Root.Procedure::VT_2_PSA_User" ( )
+   LANGUAGE SQLSCRIPT
+   SQL SECURITY INVOKER
+   --DEFAULT SCHEMA <default_schema_name>
+  as
+BEGIN
+   /*************************************
+       Write your procedure logic 
+   *************************************/
+   insert into "Facilitator"."IntelligentFacilitator.Root.DDL::ZTMP_Facilitator_Tables.T_PSA_User"(
+       
+    "User_ID",
+	"First_Name",
+	"Last_Name",
+	"MI",
+	"Postal_Code",
+	"Job_Location_Desc",
+	"Job_Code",
+	"Job_Code_Desc",
+	"Employee_Status",
+	"Employee_Type",
+	"Organization_ID",
+	"Organization_Description",
+	"Domain_ID",
+	"Domain_Desc",
+	"HireDate",
+	"Termination_Date",
+	"Active",
+	"Email_Address",
+	"Supervisor_ID",
+	"SupervisorFirst_Name",
+	"Supervisor_Last_Name",
+	"Supervisor_Mid_Initial",
+	"Resume_Location",
+	"Street_and_Number",
+	"City",
+	"State",
+	"Zip_Code",
+	"Country",
+	"Registration_Code",
+	"Comments"
+       
+   ) 
+
+select 
+    "User_ID",
+	"First_Name",
+	"Last_Name",
+	"MI",
+	"Postal_Code",
+	"Job_Location_Desc",
+	"Job_Code",
+	"Job_Code_Desc",
+	"Employee_Status",
+	"Employee_Type",
+	"Organization_ID",
+	"Organization_Description",
+	"Domain_ID",
+	"Domain_Desc",
+	"CC_HireDate",
+	"CC_TerminationDate",
+	"Active",
+	"Email_Address",
+	"Supervisor_ID",
+	"SupervisorFirst_Name",
+	"Supervisor_Last_Name",
+	"Supervisor_Mid_Initial",
+	"Resume_Location",
+	"Street_and_Number",
+	"City",
+	"State",
+	"Zip_Code",
+	"Country",
+	"Registration_Code",
+	"Comments"
+ 
+
+from  "_SYS_BIC"."IntelligentFacilitator.Root.CalculationViews.Dimensions/" ;
+END
