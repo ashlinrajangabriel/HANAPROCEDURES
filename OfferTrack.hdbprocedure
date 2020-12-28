@@ -1,0 +1,40 @@
+PROCEDURE "Facilitator"."IntelligentFacilitator.Root.Procedure::OfferingTracker" (out O_Cordinators nvarchar(255) )
+   LANGUAGE SQLSCRIPT
+   SQL SECURITY INVOKER
+   --DEFAULT SCHEMA <default_schema_name>
+    AS
+BEGIN
+   /*************************************
+       Write your procedure logic 
+   *************************************/
+declare v_cnt_Crdinators Integer;
+declare v_revision_date Date ARRAY;
+
+
+select COUNT("Cordinators_ID") into  v_cnt_Crdinators 
+from  "Facilitator"."IntelligentFacilitator.Root.DDL::ZFacilitator_Master.Coordinators" 
+where ("isCurrentlyBooked" != 'N' and "NextAvailableDate" is NUll) or "NextAvailableDate" >= current_date;
+
+Select top :v_cnt_Crdinators min(revision_date),scheduleID into v_revision_date
+from "IntelligentFacilitator.Root.DDL::ZFacillitator_Tr.ScheduledOffering";
+
+
+While(v_cnt_Crdinators)
+do
+--Search for Co-ordinators   
+select top 1 "Cordinators_ID" into  O_Cordinators from  "Facilitator"."IntelligentFacilitator.Root.DDL::ZFacilitator_Master.Coordinators" where "isCurrentlyBooked" != 'N';
+if O_Cordinators IS NULL then
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+ BEGIN
+ insert into "IntelligentFacilitator.Root.DDL::ZFacillitator_Tr.Issues" values (CURRENT_TIMESTAMP,'No Co-ordinators available');
+END;
+ELSEIF O_Cordinators IS NOT NULL then
+BEGIN
+--insert into "IntelligentFacilitator.Root.DDL::ZFacillitator_Tr.CurrentOffering" values(O_Cordinators,)
+
+END;
+
+END IF;
+
+END WHILE;   
+END;
